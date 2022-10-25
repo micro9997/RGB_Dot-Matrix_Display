@@ -1,6 +1,6 @@
 
-#ifndef SHIFTREG_HPP
-#define SHIFTREG_HPP
+#ifndef RGBDOTMATRIX_HPP
+#define RGBDOTMATRIX_HPP
 
 #define F_CPU 16000000
 
@@ -14,17 +14,20 @@
 #define MSBFIRST 1
 
 namespace mohan {
-    class ShiftReg {
+    class RGBDotMatrix {
     private:
         volatile uint8_t *port;
         uint8_t dataPin;
         uint8_t clockPin;
         uint8_t latchPin;
         void init();
+        // void accessDisplay(uint8_t, uint8_t, uint8_t, uint8_t);
+        void bitsCpy(uint32_t *, uint8_t, uint8_t, uint8_t);
+        void shiftOut(uint8_t);
     public:
-        ShiftReg(volatile uint8_t &, uint8_t, uint8_t, uint8_t);
-        ~ShiftReg();
-        uint8_t shiftOut(uint8_t, uint8_t);
+        RGBDotMatrix(volatile uint8_t &, uint8_t, uint8_t, uint8_t);
+        ~RGBDotMatrix();
+        void accessDisplay(uint8_t, uint8_t, uint8_t, uint8_t);
     };
 }
 
