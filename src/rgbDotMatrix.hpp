@@ -20,14 +20,20 @@ namespace mohan {
         uint8_t dataPin;
         uint8_t clockPin;
         uint8_t latchPin;
+        uint8_t *ptrData;
+        uint8_t dataSize;
+        uint8_t dataLen;
+        uint8_t shiftCount;
         void init();
-        // void accessDisplay(uint8_t, uint8_t, uint8_t, uint8_t);
+        void accessDisplay(uint8_t, uint8_t, uint8_t, uint8_t);
         void bitsCpy(uint32_t *, uint8_t, uint8_t, uint8_t);
         void shiftOut(uint8_t);
     public:
         RGBDotMatrix(volatile uint8_t &, uint8_t, uint8_t, uint8_t);
         ~RGBDotMatrix();
-        void accessDisplay(uint8_t, uint8_t, uint8_t, uint8_t);
+        void setData(uint8_t *, uint8_t, uint8_t);
+        void display();
+        void move();
     };
 }
 

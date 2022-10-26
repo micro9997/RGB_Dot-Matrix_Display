@@ -10,6 +10,8 @@ RGBDotMatrix::RGBDotMatrix(volatile uint8_t &port, uint8_t dataPin, uint8_t cloc
     this->latchPin = latchPin;
 
     init();
+    
+    shiftCount = 0;
 }
 
 RGBDotMatrix::~RGBDotMatrix() {
@@ -96,9 +98,27 @@ void RGBDotMatrix::shiftOut(uint8_t data) {
         *port |= (1 << clockPin);
         *port &= ~(1 << clockPin);
     }
-
-    // *port |= (1 << latchPin);
-    // *port &= ~(1 << latchPin);
 }
 
+void RGBDotMatrix::setData(uint8_t *data, uint8_t dataSize, uint8_t dataLen) {
+    ptrData = data;
+    this->dataSize = dataSize;
+    this->dataLen = dataLen;
+}
 
+void RGBDotMatrix::display() {
+    for(int i = 0; i < 8; i++) {
+        uint8_t mask = (1 << i);
+        uint8_t da = (*(ptrData + ((dataSize * i) + (shiftCount / 8))));
+        da = da << (shiftCount % 8);
+        da = da | ((*(ptrData + ((dataSize * i) + ((shiftCount / 8) + 1)))) >> (8 - (shiftCount % 8)));
+        accessDisplay(mask, 0, 0, da);
+    }
+}
+
+void RGBDotMatrix::move() {
+    shiftCount++;
+    if(shiftCount == ((dataLen - 8) + 1)) {
+        shiftCount = 0;
+    }
+}

@@ -6,6 +6,7 @@
 #endif
 
 #include <avr/io.h>
+#include <avr/interrupt.h>
 #include "src/rgbDotMatrix.hpp"
 
 #define dataPin     7
@@ -14,118 +15,54 @@
 
 using namespace mohan;
 
+uint8_t testData[8][3] = {  {0x00, 0x00, 0x00},
+                            {0x00, 0x88, 0x00},
+                            {0x00, 0x88, 0x00},
+                            {0x00, 0x50, 0x00},
+                            {0x00, 0x20, 0x00},
+                            {0x00, 0x50, 0x00},
+                            {0x00, 0x88, 0x00},
+                            {0x00, 0x88, 0x00}};
+
+uint8_t data[8][8] = {  {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+                        {0x00, 0xFA, 0x2F, 0xBC, 0xFA, 0x2F, 0x80, 0x00},
+                        {0x00, 0x83, 0x68, 0x22, 0x22, 0x28, 0x00, 0x00},
+                        {0x00, 0x82, 0xA8, 0x22, 0x21, 0x48, 0x00, 0x00},
+                        {0x00, 0xF2, 0x2F, 0x3C, 0x20, 0x8F, 0x00, 0x00},
+                        {0x00, 0x82, 0x28, 0x28, 0x21, 0x48, 0x00, 0x00},
+                        {0x00, 0x82, 0x28, 0x24, 0x22, 0x28, 0x00, 0x00},
+                        {0x00, 0xFA, 0x2F, 0xA2, 0x22, 0x2F, 0x80, 0x00}};
+uint8_t dataSize = 3;
+uint8_t dataLen = 21;
+uint8_t moveTime = 250;
+
+RGBDotMatrix rgbDotMatrix(PORTD, dataPin, clockPin, latchPin);
+
+void timerInit() {
+    DDRB |= (1 << PORTB5);
+	TCCR0A = (1 << WGM01);
+	OCR0A = 250;
+	TIMSK0 = (1 << OCIE0A);
+	sei();
+	TCCR0B = (1 << CS01) | (1 << CS00);
+}
+
 int main(void) {
-    uint8_t data[8][8] = {  {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-                            {0x00, 0xFA, 0x2F, 0xBC, 0xFA, 0x2F, 0x80, 0x00},
-                            {0x00, 0x83, 0x68, 0x22, 0x22, 0x28, 0x00, 0x00},
-                            {0x00, 0x82, 0xA8, 0x22, 0x21, 0x48, 0x00, 0x00},
-                            {0x00, 0xF2, 0x2F, 0x3C, 0x20, 0x8F, 0x00, 0x00},
-                            {0x00, 0x82, 0x28, 0x28, 0x21, 0x48, 0x00, 0x00},
-                            {0x00, 0x82, 0x28, 0x24, 0x22, 0x28, 0x00, 0x00},
-                            {0x00, 0xFA, 0x2F, 0xA2, 0x22, 0x2F, 0x80, 0x00}};
-
-    uint8_t dataLen = 57;
-    
-    RGBDotMatrix rgbDotMatrix(PORTD, dataPin, clockPin, latchPin);
-
-    uint8_t wait = 25;
-    uint8_t add = 0;
-
+    timerInit();
+    rgbDotMatrix.setData(&testData[0][0], dataSize, dataLen);
     while(1) {
-        for(int i = 0; i < 8; i++) {
-            uint8_t mask = (1 << i);
-
-            uint8_t da = data[i][(add / 8)];
-            da = da << (add % 8);
-            da = da | (data[i][(add / 8) + 1] >> (8 - (add % 8)));
-
-            rgbDotMatrix.accessDisplay(mask, 0, 0, da);
-        }
-        wait--;
-        if(wait == 0) {
-            add++;
-            if(add == ((dataLen - 8) + 1)) {
-                add = 0;
-            }
-            wait = 25;
-        }
+        rgbDotMatrix.display();
     }
 
     return 0;
 }
 
-// add == 50
-
-// rgbDotMatrix.accessDisplay(mask, 0, 0, ((data2[i] >> 6) >> ((57 - 8) - add)));
-
-/* uint8_t data[8][8] = {  {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-                            {0x00, 0x7D, 0x17, 0xDE, 0x7D, 0x17, 0xC0, 0x00},
-                            {0x00, 0x41, 0xB4, 0x11, 0x11, 0x14, 0x00, 0x00},
-                            {0x00, 0x41, 0x54, 0x11, 0x10, 0xA4, 0x00, 0x00},
-                            {0x00, 0x79, 0x57, 0x9E, 0x10, 0x47, 0x80, 0x00},
-                            {0x00, 0x41, 0x14, 0x14, 0x10, 0xA4, 0x00, 0x00},
-                            {0x00, 0x41, 0x14, 0x12, 0x11, 0x14, 0x00, 0x00},
-                            {0x00, 0x7D, 0x17, 0xD1, 0x11, 0x17, 0xC0, 0x00}}; */
-
-/* while(1) {
-    for(int i = 0; i < 8; i++) {
-        uint8_t mask = (1 << i);
-
-        uint8_t da = data[i][((add - 1) / 8)];
-        da = da << (add % 8);
-        da = da | (data[i][((add - 1) / 8) + 1] >> (8 - (add % 8)));
-
-        rgbDotMatrix.accessDisplay(mask, 0, 0, da);
-    }
-    wait--;
-    if(wait == 0) {
-        add++;
-        if(add == (dataLen + 1)) {
-            add = 0;
-        }
-        wait = 25;
-    }
-} */
-
-/* while(1) {
-    for(int i = 0; i < 8; i++) {
-        uint8_t mask = (1 << i);
-
-        uint8_t da = data[i][0];
-        da = da << 8;
-        da = da | (data[i][1] >> 0);
-
-        rgbDotMatrix.accessDisplay(mask, 0, 0, da);
-    }
-    wait--;
-    if(wait == 0) {
-        add++;
-        if(add == (dataLen + 1)) {
-            add = 0;
-        }
-        wait = 25;
-    }
-} */
-
-/* while(1) {
-    for(int i = 0; i < 8; i++) {
-        uint8_t mask = (1 << i);
-
-        uint8_t da = data[i][((add - 1) / 8)];
-        da = da << (add % 9);
-        da = da | (data[i][((add - 1) / 8) + 1] >> (8 - (add % 9)));
-
-        rgbDotMatrix.accessDisplay(mask, 0, 0, da);
-    }
-    wait--;
-    if(wait == 0) {
-        add++;
-        if(add == ((dataLen - 8) + 1)) {
-            add = 0;
-        }
-        wait = 25;
-    }
-} */
-
-/* uint64_t data2[] = {0x0000000000000000, 0x007D17DE7D17C000, 0x0041B41111140000, 0x0041541110A40000,
-                        0x0079579E10478000, 0x0041141410A40000, 0x0041141211140000, 0x007D17D11117C000}; */
+ISR(TIMER0_COMPA_vect) {
+	static int extraTime = 0;
+    extraTime++;
+	
+	if(extraTime > moveTime) {
+		extraTime = 0;
+		rgbDotMatrix.move();
+	}
+}
