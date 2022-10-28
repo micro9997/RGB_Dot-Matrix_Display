@@ -1,5 +1,8 @@
 
-avr-g++ -mmcu=atmega328p main.cpp src/rgbDotMatrix.cpp
-avr-objcopy -O ihex a.out out.hex
+gcc generateData.c -o generateData.out
+./generateData.out
 
-rm a.out
+avr-g++ -mmcu=atmega328p main.cpp src/rgbDotMatrix.cpp -o main.out
+avr-objcopy -O ihex main.out out.hex
+
+rm generateData.out main.out

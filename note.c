@@ -1,0 +1,49 @@
+
+/* uint8_t testData[8][3] = {  {0x00, 0x00, 0x00},
+                            {0x00, 0x88, 0x00},
+                            {0x00, 0x88, 0x00},
+                            {0x00, 0x50, 0x00},
+                            {0x00, 0x20, 0x00},
+                            {0x00, 0x50, 0x00},
+                            {0x00, 0x88, 0x00},
+                            {0x00, 0x88, 0x00}};
+
+uint8_t data[8][8] = {  {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+                        {0x00, 0xFA, 0x2F, 0xBC, 0xFA, 0x2F, 0x80, 0x00},
+                        {0x00, 0x83, 0x68, 0x22, 0x22, 0x28, 0x00, 0x00},
+                        {0x00, 0x82, 0xA8, 0x22, 0x21, 0x48, 0x00, 0x00},
+                        {0x00, 0xF2, 0x2F, 0x3C, 0x20, 0x8F, 0x00, 0x00},
+                        {0x00, 0x82, 0x28, 0x28, 0x21, 0x48, 0x00, 0x00},
+                        {0x00, 0x82, 0x28, 0x24, 0x22, 0x28, 0x00, 0x00},
+                        {0x00, 0xFA, 0x2F, 0xA2, 0x22, 0x2F, 0x80, 0x00}};
+uint8_t dataSize = 3;
+uint8_t dataLen = 21;
+uint8_t moveTime = 250; */
+
+/* void prepareData(uint8_t data, uint8_t n) {
+    if(n == 0) {
+        fprintf(fptr, ", 0x%X", temData);
+        temDataCount = 0;
+        return;
+    }
+    n--;
+    for(int i = n; i >= 0; i--) {
+        uint8_t mask = (1 << i);
+        if((data & mask) != 0) {
+            temData = temData << 1;
+            temData = temData | 1;
+            temDataCount++;
+            if(temDataCount == 8) {
+                fprintf(fptr, ", 0x%X", temData);
+                temDataCount = 0;
+            }
+        } else {
+            temData = temData << 1;
+            temDataCount++;
+            if(temDataCount == 8) {
+                fprintf(fptr, ", 0x%X", temData);
+                temDataCount = 0;
+            }
+        }
+    }
+} */

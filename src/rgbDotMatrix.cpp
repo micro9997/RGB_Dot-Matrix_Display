@@ -12,6 +12,16 @@ RGBDotMatrix::RGBDotMatrix(volatile uint8_t &port, uint8_t dataPin, uint8_t cloc
     init();
     
     shiftCount = 0;
+
+    possiPatternI = 1;
+    i = 1;
+    possiPattern[1] = 0b00000001;
+    possiPattern[2] = 0b00000010;
+    possiPattern[3] = 0b00000100;
+    possiPattern[4] = 0b00000011;
+    possiPattern[5] = 0b00000110;
+    possiPattern[6] = 0b00000101;
+    possiPattern[7] = 0b00000111;
 }
 
 RGBDotMatrix::~RGBDotMatrix() {
@@ -37,11 +47,22 @@ void RGBDotMatrix::init() {
         DDRD |= (1 << latchPin);
     }
 
-    accessDisplay(0, 0, 0, 0);
+    accessDisplay(0, 0);
 }
 
-void RGBDotMatrix::accessDisplay(uint8_t comm, uint8_t red, uint8_t green, uint8_t blue) {
+void RGBDotMatrix::accessDisplay(uint8_t comm, uint8_t dat) {
+    uint8_t red = 0, green = 0, blue = 0;
     uint32_t data;
+
+    if((color & RED) == RED) {
+        red = dat;
+    }
+    if((color & GREEN) == GREEN) {
+        green = dat;
+    }
+    if((color & BLUE) == BLUE) {
+        blue = dat;
+    }
 
     red = ~red;
     green = ~green;
@@ -104,6 +125,7 @@ void RGBDotMatrix::setData(uint8_t *data, uint8_t dataSize, uint8_t dataLen) {
     ptrData = data;
     this->dataSize = dataSize;
     this->dataLen = dataLen;
+    setColor();
 }
 
 void RGBDotMatrix::display() {
@@ -112,13 +134,22 @@ void RGBDotMatrix::display() {
         uint8_t da = (*(ptrData + ((dataSize * i) + (shiftCount / 8))));
         da = da << (shiftCount % 8);
         da = da | ((*(ptrData + ((dataSize * i) + ((shiftCount / 8) + 1)))) >> (8 - (shiftCount % 8)));
-        accessDisplay(mask, 0, 0, da);
+        accessDisplay(mask, da);
     }
 }
 
 void RGBDotMatrix::move() {
     shiftCount++;
     if(shiftCount == ((dataLen - 8) + 1)) {
+        setColor();
         shiftCount = 0;
+    }
+}
+
+void RGBDotMatrix::setColor() {
+    color = possiPattern[i];
+    i++;
+    if(i == 4) {
+        i = 1;
     }
 }
